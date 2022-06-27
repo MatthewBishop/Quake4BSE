@@ -246,60 +246,38 @@ void __cdecl SpawnSurfaceBox2(float* result, const rvParticleParms* parms)
 }
 void __cdecl SpawnSurfaceBox3(float* result, const rvParticleParms* parms, idVec3* normal, idVec3* centre)
 {
-	int v4; // ebx
-	const const rvParticleParms* v5; // edi
-	double v6; // st7
-	double v7; // st7
-	double v8; // st7
-	float min; // [esp+0h] [ebp-1Ch]
-	float max; // [esp+4h] [ebp-18h]
-	float normalb; // [esp+28h] [ebp+Ch]
-	float normalc; // [esp+28h] [ebp+Ch]
-	float normala; // [esp+28h] [ebp+Ch]
-	float normald; // [esp+28h] [ebp+Ch]
-
-	v4 = rvRandom::irand(0, 5);
-	switch (v4)
+	int index = rvRandom::irand(0, 5);	
+	switch (index)
 	{
 	case 0:
-		v5 = parms;
-		*result = parms->mMins.x;
-		max = parms->mMaxs.y;
-		v6 = parms->mMins.y;
-		goto LABEL_3;
+		result[0] = parms->mMins.x;
+		result[1] = rvRandom::flrand(parms->mMins.y, parms->mMaxs.y);
+		result[2] = rvRandom::flrand(parms->mMins.z, parms->mMaxs.z);
+		break;
 	case 1:
-		v5 = parms;
-		*result = rvRandom::flrand(parms->mMins.x, parms->mMaxs.x);
-		v7 = parms->mMins.y;
-		goto LABEL_4;
+		result[0] = rvRandom::flrand(parms->mMins.x, parms->mMaxs.x);
+		result[1] = parms->mMins.y;
+		result[2] = rvRandom::flrand(parms->mMins.z, parms->mMaxs.z);
+		break;
 	case 2:
-		*result = rvRandom::flrand(parms->mMins.x, parms->mMaxs.x);
+		result[0] = rvRandom::flrand(parms->mMins.x, parms->mMaxs.x);
 		result[1] = rvRandom::flrand(parms->mMins.y, parms->mMaxs.y);
-		v8 = parms->mMins.z;
-		goto LABEL_10;
+		result[2] = parms->mMins.z;
+		break;
 	case 3:
-		v5 = parms;
-		*result = parms->mMaxs.x;
-		max = parms->mMaxs.y;
-		v6 = parms->mMins.y;
-	LABEL_3:
-		min = v6;
-		v7 = rvRandom::flrand(min, max);
-		goto LABEL_4;
-	case 4:
-		v5 = parms;
-		*result = rvRandom::flrand(parms->mMins.x, parms->mMaxs.x);
-		v7 = parms->mMaxs.y;
-	LABEL_4:
-		result[1] = v7;
-		v8 = rvRandom::flrand(v5->mMins.z, v5->mMaxs.z);
-		goto LABEL_10;
-	case 5:
-		*result = rvRandom::flrand(parms->mMins.x, parms->mMaxs.x);
+		result[0] = parms->mMaxs.x;
 		result[1] = rvRandom::flrand(parms->mMins.y, parms->mMaxs.y);
-		v8 = parms->mMaxs.z;
-	LABEL_10:
-		result[2] = v8;
+		result[2] = rvRandom::flrand(parms->mMins.z, parms->mMaxs.z);
+		break;
+	case 4:
+		result[0] = rvRandom::flrand(parms->mMins.x, parms->mMaxs.x);
+		result[1] = parms->mMaxs.y;
+		result[2] = rvRandom::flrand(parms->mMins.z, parms->mMaxs.z);
+		break;
+	case 5:
+		result[0] = rvRandom::flrand(parms->mMins.x, parms->mMaxs.x);
+		result[1] = rvRandom::flrand(parms->mMins.y, parms->mMaxs.y);
+		result[2] = parms->mMaxs.z;
 		break;
 	default:
 		break;
@@ -308,22 +286,21 @@ void __cdecl SpawnSurfaceBox3(float* result, const rvParticleParms* parms, idVec
 	{
 		if (centre)
 		{
-			*normal = bse->GetCubeNormals(v4);
+			*normal = bse->GetCubeNormals(index);
 		}
 		else
 		{
-			normal->x = *result;
+			normal->x = result[0];
 			normal->y = result[1];
-			normalb = result[2];
-			normal->z = normalb;
-			normalc = normalb * normalb + normal->y * normal->y + normal->x * normal->x;
-			normala = sqrt(normalc);
-			if (normala >= 0.00000011920929)
+			normal->z = result[2];
+			float lengthSquared = normal->z * normal->z + normal->y * normal->y + normal->x * normal->x;
+			float length = sqrt(lengthSquared);
+			if (length >= 0.00000011920929)
 			{
-				normald = 1.0 / normala;
-				normal->x = normal->x * normald;
-				normal->y = normal->y * normald;
-				normal->z = normald * normal->z;
+				float invLength = 1.0 / length;
+				normal->x = normal->x * invLength;
+				normal->y = normal->y * invLength;
+				normal->z = normal->z * invLength;
 			}
 		}
 	}
@@ -357,42 +334,32 @@ void __cdecl SpawnSphere2(float* result, const rvParticleParms* parms)
 	*result = rvRandom::flrand(0.0, radius_4) * direction_4 + origin_4;
 	result[1] = rvRandom::flrand(0.0, origin) * radius + v7;
 }
-void __cdecl SpawnSphere3(float* result, const rvParticleParms* parms, idVec3* normal, idVec3* centre)
+void __cdecl SpawnSurfaceSphere3(float* result, const rvParticleParms* parms, idVec3* normal, idVec3* centre)
 {
-	float direction_4; // [esp+Ch] [ebp-24h]
-	float direction_8; // [esp+10h] [ebp-20h]
-	float radius; // [esp+14h] [ebp-1Ch]
-	float radius_4; // [esp+18h] [ebp-18h]
-	float radius_8; // [esp+1Ch] [ebp-14h]
-	float origin; // [esp+20h] [ebp-10h]
-	float origin_4; // [esp+24h] [ebp-Ch]
-	float origin_8; // [esp+28h] [ebp-8h]
-	float v12; // [esp+2Ch] [ebp-4h]
-	float parmsb; // [esp+38h] [ebp+8h]
-	float parmsa; // [esp+38h] [ebp+8h]
-	float parmsc; // [esp+38h] [ebp+8h]
-
-	origin_4 = (parms->mMins.x + parms->mMaxs.x) * 0.5;
-	origin_8 = (parms->mMins.y + parms->mMaxs.y) * 0.5;
-	v12 = (parms->mMins.z + parms->mMaxs.z) * 0.5;
-	radius_4 = (parms->mMaxs.x - parms->mMins.x) * 0.5;
-	radius_8 = (parms->mMaxs.y - parms->mMins.y) * 0.5;
-	origin = 0.5 * (parms->mMaxs.z - parms->mMins.z);
-	direction_4 = rvRandom::flrand(-1.0, 1.0);
-	direction_8 = rvRandom::flrand(-1.0, 1.0);
-	radius = rvRandom::flrand(-1.0, 1.0);
-	parmsb = direction_8 * direction_8 + direction_4 * direction_4 + radius * radius;
-	parmsa = sqrt(parmsb);
-	if (parmsa >= 0.00000011920929)
+	float origin_x = (parms->mMins.x + parms->mMaxs.x) * 0.5;
+	float origin_y = (parms->mMins.y + parms->mMaxs.y) * 0.5;
+	float origin_z = (parms->mMins.z + parms->mMaxs.z) * 0.5;
+	
+	float radius_x = (parms->mMaxs.x - parms->mMins.x) * 0.5;
+	float radius_y = (parms->mMaxs.y - parms->mMins.y) * 0.5;
+	float radius_z = (parms->mMaxs.z - parms->mMins.z) * 0.5;
+	
+	float direction_x = rvRandom::flrand(-1.0, 1.0);
+	float direction_y = rvRandom::flrand(-1.0, 1.0);
+	float direction_z = rvRandom::flrand(-1.0, 1.0);
+	
+	float lengthSquared = direction_x * direction_x + direction_y * direction_y + direction_z * direction_z;
+	float length = sqrt(lengthSquared);
+	if (length >= 0.00000011920929)
 	{
-		parmsc = 1.0 / parmsa;
-		direction_4 = direction_4 * parmsc;
-		direction_8 = direction_8 * parmsc;
-		radius = parmsc * radius;
+		float invLength = 1.0 / length;
+		direction_x = direction_x * invLength;
+		direction_y = direction_y * invLength;
+		direction_z = direction_z * invLength;
 	}
-	*result = rvRandom::flrand(0.0, radius_4) * direction_4 + origin_4;
-	result[1] = rvRandom::flrand(0.0, radius_8) * direction_8 + origin_8;
-	result[2] = rvRandom::flrand(0.0, origin) * radius + v12;
+	result[0] = radius_x * direction_x + origin_x;
+	result[1] = radius_y * direction_y + origin_y;
+	result[2] = radius_z * direction_z + origin_z;
 	SpawnGetNormal(normal, (idVec3*)result, centre);
 }
 void __cdecl SpawnSurfaceBox1(float* result, const rvParticleParms* parms)
